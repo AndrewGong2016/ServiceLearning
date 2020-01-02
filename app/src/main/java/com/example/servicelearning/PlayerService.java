@@ -1,40 +1,40 @@
 package com.example.servicelearning;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.app.Service;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.MediaStore;
 import android.util.Log;
 
 import java.io.IOException;
 
-public class MainActivity extends AppCompatActivity {
-    String TAG ="guantbbMain";
+public class PlayerService extends Service {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate: ");
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        Intent intent = new Intent(this,PlayerService.class);
-        new Intent();
-        startService(intent);
+    String TAG = "guantbbService";
+    public PlayerService() {
     }
 
+    @Override
+    public void onCreate() {
 
+        Log.d(TAG, "onCreate: ");
+        super.onCreate();
+    }
 
-    private void playaSong(){
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+
+        Log.d(TAG, "onStartCommand: ");
         String[] projection = new String[]{
                 MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.ARTIST,
                 MediaStore.Audio.Media.TITLE
         };
+
         Cursor cursor = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 projection,
                 null,null,
@@ -44,12 +44,13 @@ public class MainActivity extends AppCompatActivity {
         while(cursor!=null && cursor.moveToNext()){
             long id = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
             String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
-            Log.d(TAG, "onCreate: id == "+ id+",title is "+title);
+//            Log.d(TAG, "onCreate: id == "+ id+",title is "+title);
 
             if ("Shape of You".equals(title)){
                 playid = id;
                 break;
             }
+
         }
         Uri uri= Uri.parse(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI + "/" + playid);
 
@@ -65,17 +66,17 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
-    protected void onStop() {
-        Log.d(TAG, "onStop: ");
-        super.onStop();
+    public IBinder onBind(Intent intent) {
+        // TODO: Return the communication channel to the service.
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override
-    protected void onDestroy() {
-
+    public void onDestroy() {
         Log.d(TAG, "onDestroy: ");
         super.onDestroy();
     }
